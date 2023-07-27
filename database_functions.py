@@ -53,6 +53,16 @@ async def create_schema(engine):
                 error_message TEXT,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
+            CREATE TABLE IF NOT EXISTS query_cache_logs (
+                id SERIAL PRIMARY KEY,
+                uuid_number TEXT,
+                query TEXT,
+                query_prompt TEXT,
+                query_answer TEXT,
+                inMemoryArray TEXT,
+                cache_toggle TEXT, 
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
         ''')
 
 
@@ -93,4 +103,15 @@ async def insert_qa_voice_logs(engine, uuid_number, input_language, output_forma
             ''',
             uuid_number, input_language, output_format, query, query_in_english, paraphrased_query, response,
             response_in_english, audio_output_link, source_text, error_message, datetime.now(pytz.UTC)
+        )
+
+async def insert_query_logs(engine,uuid_number, query):
+    async with engine.acquire() as connection:
+        await connection.execute(
+            '''
+            INSERT INTO query_cache_logs 
+            (uuid_number, query, created_at) 
+            VALUES ($1, $2, $3)
+            ''',
+            uuid_number, query, datetime.now(pytz.UTC)
         )
