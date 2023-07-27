@@ -363,11 +363,19 @@ async def query_using_langchain_with_gpt4_mcq(uuid_number: str, query_string: st
         return cache[lowercase_query_string]
     else:
         load_dotenv()
+
         answer, source_text, paraphrased_query, error_message, status_code = querying_with_langchain_gpt4_mcq(
             uuid_number,
             query_string,
             caching
         )
+
+        # engine = await create_engine()
+
+        # await insert_query_logs(engine=engine, uuid_number=uuid_number, query=query_string)
+        
+
+        # await engine.close()
 
         if status_code != 200:
             raise HTTPException(status_code=status_code, detail=error_message)
